@@ -1,0 +1,33 @@
+# File managed by Puppet. DO NOT EDIT.
+#
+# This file contains the auditctl rules that are loaded
+# whenever the audit daemon is started via the initscripts.
+# The rules are simply the parameters that would be passed
+# to auditctl.
+
+# First rule - delete all
+-D
+
+# Increase the buffers to survive stress events.
+# Make this bigger for busy systems
+-b 8192
+
+# DO NOT BLOCK THE FOLLOWING EVENTS
+# USER_AUTH
+# USER_START
+# USER_END
+# USER_LOGIN
+# USER_LOGOUT
+# ADD_USER
+# DEL_USER
+# ADD_GROUP
+# DEL_GROUP
+# SERVICE_START
+# SERVICE_STOP
+# SYSCALL
+# EXECVE
+
+# REQUIRED (for Insight Agent): watch for execve syscalls, change to arch=b32 for 32 bit systems
+-a always,exit -F arch=b64 -S execve -F key=execve
+
+# Feel free to add additional rules below this line. See auditctl man page
