@@ -1,0 +1,3 @@
+---
+ir_agent::audispd::conf: '/etc/audit/auditd.conf'
+ir_agent::audisp::plugins_dir: '/etc/audit/plugins.d'

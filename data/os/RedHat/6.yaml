@@ -1,0 +1,3 @@
+---
+ir_agent::audit::rules: '/etc/audit/audit.rules'
+ir_agent::audit::start_cmd: chkconfig auditd on && service auditd start'

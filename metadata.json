@@ -1,6 +1,6 @@
 {
   "name": "nvergottini-ir_agent",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Neil Vergottini",
   "summary": "",
   "license": "Apache-2.0",
@@ -9,10 +9,6 @@
     {
       "name": "puppetlabs/stdlib",
       "version_requirement": ">= 5.2.0 < 8.0.0"
-    },
-    {
-      "name": "eyp/systemd",
-      "version_requirement": ">= 0.3.0 < 4.0.0"
     }
   ],
   "operatingsystem_support": [
@@ -20,21 +16,24 @@
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
         "6",
-        "7"
+        "7",
+        "8"
       ]
     },
     {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
         "6",
-        "7"
+        "7",
+        "8"
       ]
     },
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
         "6",
-        "7"
+        "7",
+        "8"
       ]
     },
     {
@@ -51,7 +50,7 @@
       "version_requirement": ">= 6.21.0 < 8.0.0"
     }
   ],
-  "pdk-version": "2.1.0",
-  "template-url": "pdk-default#2.1.0",
-  "template-ref": "tags/2.1.0-0-ga675ea5"
+  "pdk-version": "2.2.0",
+  "template-url": "pdk-default#2.2.0",
+  "template-ref": "tags/2.2.0-0-g2381db6"
 }
