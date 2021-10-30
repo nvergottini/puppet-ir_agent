@@ -7,8 +7,8 @@ Red Hat Enterprise Linux (and clones).
 
 1. [Description](#description)
 1. [Setup](#setup)
-    * [Setup requirements](#setup-requirements)
-    * [Beginning with ir_agent](#beginning-with-rapid7)
+   - [Setup requirements](#setup-requirements)
+   - [Beginning with ir_agent](#beginning-with-rapid7)
 1. [Usage](#usage)
 1. [Limitations](#limitations)
 
@@ -16,8 +16,7 @@ Red Hat Enterprise Linux (and clones).
 
 This module can be used to install, configure, and remove Rapid7 Insight Agent.
 Configurable options include proxy settings and enabling and disabling auditd
-compatibility mode. Plans are also available for deploying Insight Agent using
-Bolt.
+compatibility mode.
 
 ## Setup
 
@@ -48,11 +47,18 @@ class { '::ir_agent':
   source                    => 'puppet:///modules/test/agent_installer_x64.sh',
   token                     => 'us:01234567-89ab-cdef-0123-4567890abcde',
   auditd_compatibility_mode => true,
-  proxy_host                => 'proxy.example.org',
-  proxy_port                => 3128,
+  https_proxy               => 'proxy.example.org:3128',
 }
 ```
 
 ## Limitations
 
-This module has been tested only on RHEL 6 and 7 clones.
+This module has been tested on Scientific 6 and Oracle Linux 7 and 8 only, but
+it should work for other RHEL 6 and 7 based operating systems.
+
+If this module is used to install the Insight agent, it will install the audit
+package because it is a requirement for the Insight agent. If this module is
+later used to remove the Insight agent, it will not remove the audit package and
+it will enable and start the auditd service. The audit package can then be
+removed and this module will not reinstall the audit package as long as ensure
+=> absent.
