@@ -22,7 +22,7 @@ compatibility mode.
 
 ### Setup Requirements
 
-This module requires (and does not include) the agent installer script from
+This module requires (but does not include) the agent installer script from
 Rapid7. You will also need an installation token from Rapid7 to download the
 required certificates during installation.
 
@@ -54,7 +54,7 @@ class { '::ir_agent':
 ## Limitations
 
 This module has been tested on Scientific 6 and Oracle Linux 7 and 8 only, but
-it should work for other RHEL 6 and 7 based operating systems.
+it should work for other RHEL 6, 7, and 8 based distributions.
 
 If this module is used to install the Insight agent, it will install the audit
 package because it is a requirement for the Insight agent. If this module is
