@@ -24,13 +24,14 @@ class ir_agent::audit {
     }
 
     file { $audit_rules:
-      ensure => file,
-      source => "puppet:///modules/${module_name}/audit.rules",
-      backup => '.puppet-bak',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0600',
-      notify => Service['auditd'],
+      ensure  => file,
+      source  => "puppet:///modules/${module_name}/audit.rules",
+      backup  => '.puppet-bak',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0600',
+      require => Package['audit'],
+      notify  => Service['auditd'],
     }
 
     file { "${audisp_plugins_dir}/af_unix.conf":
