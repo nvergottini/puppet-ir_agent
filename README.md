@@ -53,12 +53,9 @@ class { '::ir_agent':
 
 ## Limitations
 
-This module has been tested on Scientific 6 and Oracle Linux 7 and 8 only, but
-it should work for other RHEL 6, 7, and 8 based distributions.
-
 If this module is used to install the Insight agent, it will install the audit
 package because it is a requirement for the Insight agent. If this module is
 later used to remove the Insight agent, it will not remove the audit package and
-it will enable and start the auditd service. The audit package can then be
-removed and this module will not reinstall the audit package as long as ensure
-=> absent.
+it will enable and start the auditd service (if it was stopped and disabled).
+The audit package can then be removed and this module will not reinstall the
+audit package as long as ensure => absent.
