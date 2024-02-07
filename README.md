@@ -56,6 +56,16 @@ class { '::ir_agent':
 If this module is used to install the Insight agent, it will install the audit
 package because it is a requirement for the Insight agent. If this module is
 later used to remove the Insight agent, it will not remove the audit package and
-it will enable and start the auditd service (if it was stopped and disabled).
-The audit package can then be removed and this module will not reinstall the
-audit package as long as ensure => absent.
+it will enable and start the auditd service (if it was stopped and disabled)
+unless the manage_auditd attribute is set to false. The audit package can then
+be removed and this module will not reinstall the audit package as long as
+ensure => absent.
+
+### Auditd Compatibility Mode
+
+If the manage_auditd attribute is set to false and auditd_compatibility_mode is
+set to true, this module will not manage auditd in any way. It is important that
+auditd is properly configured to support Insight Agent in auditd compatibility
+mode.
+
+https://docs.rapid7.com/insight-agent/auditd-compatibility-mode-for-linux-assets/

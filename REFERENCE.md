@@ -38,13 +38,17 @@ class { 'ir_agent':
 
 The following parameters are available in the `ir_agent` class:
 
-* [`ensure`](#ensure)
-* [`source`](#source)
-* [`token`](#token)
-* [`auditd_compatibility_mode`](#auditd_compatibility_mode)
-* [`https_proxy`](#https_proxy)
+* [`ensure`](#-ir_agent--ensure)
+* [`source`](#-ir_agent--source)
+* [`checksum`](#-ir_agent--checksum)
+* [`checksum_type`](#-ir_agent--checksum_type)
+* [`token`](#-ir_agent--token)
+* [`semantic_version`](#-ir_agent--semantic_version)
+* [`auditd_compatibility_mode`](#-ir_agent--auditd_compatibility_mode)
+* [`manage_auditd`](#-ir_agent--manage_auditd)
+* [`https_proxy`](#-ir_agent--https_proxy)
 
-##### <a name="ensure"></a>`ensure`
+##### <a name="-ir_agent--ensure"></a>`ensure`
 
 Data type: `Enum['present', 'absent']`
 
@@ -53,35 +57,69 @@ The agent is self-updating, so there is no `latest` option provided.
 
 Default value: `'present'`
 
-##### <a name="source"></a>`source`
+##### <a name="-ir_agent--source"></a>`source`
 
 Data type: `Optional[String]`
 
 Source location for the agent installer script.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="token"></a>`token`
+##### <a name="-ir_agent--checksum"></a>`checksum`
+
+Data type: `Optional[String]`
+
+Checksum for the agent installer script source file.
+
+Default value: `undef`
+
+##### <a name="-ir_agent--checksum_type"></a>`checksum_type`
+
+Data type: `Optional[Enum['md5', 'sha256', 'sha224', 'sha384', 'sha512']]`
+
+Checksum type for the source_checksum.
+
+Default value: `undef`
+
+##### <a name="-ir_agent--token"></a>`token`
 
 Data type: `Optional[String]`
 
 Token needed to download the certificates needed to enable the agent.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="auditd_compatibility_mode"></a>`auditd_compatibility_mode`
+##### <a name="-ir_agent--semantic_version"></a>`semantic_version`
+
+Data type: `Optional[String]`
+
+Reinstall the agent if the current semantic version is less than this
+version. The agent will never be reinstalled if this is not set.
+
+Default value: `undef`
+
+##### <a name="-ir_agent--auditd_compatibility_mode"></a>`auditd_compatibility_mode`
 
 Data type: `Boolean`
 
 Run the agent in auditd compatibility mode.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="https_proxy"></a>`https_proxy`
+##### <a name="-ir_agent--manage_auditd"></a>`manage_auditd`
+
+Data type: `Boolean`
+
+Manage the auditd configuration. This is ignored if
+auditd_compatibility_mode is false.
+
+Default value: `true`
+
+##### <a name="-ir_agent--https_proxy"></a>`https_proxy`
 
 Data type: `Optional[String]`
 
 Proxy host and port to use for communicating with Rapid7 cloud.
 
-Default value: ``undef``
+Default value: `undef`
 

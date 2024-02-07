@@ -1,5 +1,0 @@
----
-ir_agent::audit::rules: '/etc/audit/rules.d/audit.rules'
-ir_agent::audit::start_cmd: 'systemctl unmask auditd && systemctl enable auditd && systemctl start auditd'
-ir_agent::audispd::conf: '/etc/audisp/audispd.conf'
-ir_agent::audisp::plugins_dir: '/etc/audisp/plugins.d'

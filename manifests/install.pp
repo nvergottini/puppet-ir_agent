@@ -4,7 +4,10 @@
 #
 class ir_agent::install {
   $source = $ir_agent::source
+  $checksum = $ir_agent::checksum
+  $checksum_type = $ir_agent::checksum_type
   $token = $ir_agent::token
+  $semantic_version = $ir_agent::semantic_version
   $home = $ir_agent::home
   $auditd_compatibility_mode = $ir_agent::auditd_compatibility_mode
   $https_proxy = $ir_agent::https_proxy
@@ -17,29 +20,35 @@ class ir_agent::install {
     mode   => '0755',
   }
 
-  file { $agent_installer:
-    ensure => file,
-    source => $source,
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0750',
+  file { 'insight_agent_installer':
+    ensure         => file,
+    path           => $agent_installer,
+    source         => $source,
+    checksum       => $checksum_type,
+    checksum_value => $checksum,
+    owner          => 'root',
+    group          => 'root',
+    mode           => '0750',
   }
 
-  if $https_proxy  {
-    $_agent_install_cmd = @("CMD"/L)
-      ${agent_installer} install_start --token ${token} \
-      --https-proxy ${https_proxy}
-      |-CMD
+  $_install_args = $https_proxy ? {
+    String  => "--token ${token} --https-proxy ${https_proxy}",
+    default => "--token ${token}",
+  }
+
+  $_current_version = $facts.get('ir_agent.semantic_version')
+
+  if $semantic_version =~ String and $_current_version =~ String and versioncmp($_current_version, $semantic_version) < 0 {
+    exec { 'install_insight_agent':
+      command => "${agent_installer} reinstall_start ${_install_args}",
+      require => File['insight_agent_installer'],
+    }
   } else {
-    $_agent_install_cmd = @("CMD")
-      ${agent_installer} install_start --token ${token}
-      |-CMD
-  }
-
-  exec { 'install_insight_agent':
-    command => $_agent_install_cmd,
-    creates => "${home}/ir_agent/ir_agent",
-    require => File[$agent_installer],
+    exec { 'install_insight_agent':
+      command => "${agent_installer} install_start ${_install_args}",
+      creates => "${home}/ir_agent/ir_agent",
+      require => File['insight_agent_installer'],
+    }
   }
 
   if $https_proxy {
@@ -49,12 +58,14 @@ class ir_agent::install {
       owner   => 'root',
       group   => 'root',
       mode    => '0700',
+      require => Exec['install_insight_agent'],
       notify  => Service['ir_agent'],
     }
   } else {
     file { "${home}/ir_agent/components/bootstrap/common/proxy.config":
-      ensure => absent,
-      notify => Service['ir_agent'],
+      ensure  => absent,
+      require => Exec['install_insight_agent'],
+      notify  => Service['ir_agent'],
     }
   }
 
@@ -63,5 +74,4 @@ class ir_agent::install {
     enable  => true,
     require => Exec['install_insight_agent'],
   }
-
 }

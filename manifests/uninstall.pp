@@ -5,6 +5,7 @@
 class ir_agent::uninstall {
   $home = $ir_agent::home
   $agent_installer = $ir_agent::agent_installer
+  $manage_auditd = $ir_agent::manage_auditd
   $audit_rules = $ir_agent::audit_rules
   $audit_start_cmd = $ir_agent::audit_start_cmd
   $audisp_plugins_dir = $ir_agent::audisp_plugins_dir
@@ -20,24 +21,24 @@ class ir_agent::uninstall {
     require => Exec['uninstall_insight_agent'],
   }
 
-  exec {
-    default:
-      path        => '/sbin:/bin:/usr/bin',
-      refreshonly => true,
-      provider    => 'shell',
-      subscribe   => Exec['uninstall_insight_agent'],
-      ;
-    'restore_audit_rules':
-      command => "mv ${audit_rules}.puppet-bak ${audit_rules}",
-      onlyif  => "test -f ${audit_rules}.puppet-bak",
-      ;
-    'restore_af_unix_conf':
-      command => "mv ${audisp_plugins_dir}/af_unix.conf.puppet-bak ${audisp_plugins_dir}/af_unix.conf",
-      onlyif  => "test -f ${audisp_plugins_dir}/af_unix.conf.puppet-bak",
-      ;
-    'start_auditd':
-      command => $audit_start_cmd,
-      ;
+  if $manage_auditd {
+    exec {
+      default:
+        refreshonly => true,
+        provider    => 'shell',
+        subscribe   => Exec['uninstall_insight_agent'],
+        ;
+      'restore_audit_rules':
+        command => "mv ${audit_rules}.puppet-bak ${audit_rules}",
+        onlyif  => "test -f ${audit_rules}.puppet-bak",
+        ;
+      'restore_af_unix_conf':
+        command => "mv ${audisp_plugins_dir}/af_unix.conf.puppet-bak ${audisp_plugins_dir}/af_unix.conf",
+        onlyif  => "test -f ${audisp_plugins_dir}/af_unix.conf.puppet-bak",
+        ;
+      'start_auditd':
+        command => $audit_start_cmd,
+        ;
+    }
   }
-
 }
