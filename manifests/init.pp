@@ -7,11 +7,25 @@
 # @param source
 #   Source location for the agent installer script.
 #
+# @param checksum
+#  Checksum for the agent installer script source file.
+#
+# @param checksum_type
+#  Checksum type for the source_checksum.
+#
 # @param token
 #   Token needed to download the certificates needed to enable the agent.
 #
+# @param semantic_version
+#   Reinstall the agent if the current semantic version is less than this
+#   version. The agent will never be reinstalled if this is not set.
+#
 # @param auditd_compatibility_mode
 #   Run the agent in auditd compatibility mode.
+#
+# @param manage_auditd
+#   Manage the auditd configuration. This is ignored if
+#   auditd_compatibility_mode is false.
 #
 # @param https_proxy
 #   Proxy host and port to use for communicating with Rapid7 cloud.
@@ -26,10 +40,18 @@
 class ir_agent (
   Enum['present', 'absent'] $ensure = 'present',
   Optional[String] $source = undef,
+  Optional[String] $checksum = undef,
+  Optional[Enum['md5', 'sha256', 'sha224', 'sha384', 'sha512']] $checksum_type = undef,
   Optional[String] $token = undef,
+  Optional[String] $semantic_version = undef,
   Boolean $auditd_compatibility_mode = false,
+  Boolean $manage_auditd = true,
   Optional[String] $https_proxy = undef,
 ) {
+  unless $facts.get('os.family') == 'RedHat' and $facts.get('os.release.major') in ['6', '7', '8', '9'] {
+    fail('unsupported operating system')
+  }
+
   $home = '/opt/rapid7'
   $agent_installer = "${home}/agent_installer_x64.sh"
   $audit_package = lookup('ir_agent::audit::package', String)
@@ -44,5 +66,4 @@ class ir_agent (
   } else {
     contain ir_agent::uninstall
   }
-
 }

@@ -1,3 +1,5 @@
 ---
 ir_agent::audit::rules: '/etc/audit/audit.rules'
 ir_agent::audit::start_cmd: chkconfig auditd on && service auditd start'
+ir_agent::audispd::conf: '/etc/audisp/audispd.conf'
+ir_agent::audisp::plugins_dir: '/etc/audisp/plugins.d'
