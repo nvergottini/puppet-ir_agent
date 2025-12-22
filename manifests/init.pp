@@ -4,14 +4,20 @@
 #   If `present`, installs the agent. If `absent`, uninstalls the agent.
 #   The agent is self-updating, so there is no `latest` option provided.
 #
+# @param installer
+#   Install using package (default) or .sh script (legacy).
+#
+# @param package
+#   Name of package to install.
+#
 # @param source
-#   Source location for the agent installer script.
+#   Source location for the agent installer script (.sh installer only).
 #
 # @param checksum
-#  Checksum for the agent installer script source file.
+#  Checksum for the agent installer script source file (.sh installer only).
 #
 # @param checksum_type
-#  Checksum type for the source_checksum.
+#  Checksum type for the source_checksum (.sh installer only).
 #
 # @param token
 #   Token needed to download the certificates needed to enable the agent.
@@ -27,6 +33,9 @@
 #   Manage the auditd configuration. This is ignored if
 #   auditd_compatibility_mode is false.
 #
+# @param manage_audit_package
+#    Manage the installation of the audit package if true.
+#
 # @param https_proxy
 #   Proxy host and port to use for communicating with Rapid7 cloud.
 #
@@ -39,6 +48,8 @@
 #
 class ir_agent (
   Enum['present', 'absent'] $ensure = 'present',
+  Enum['.sh', 'package'] $installer = 'package',
+  String $package = 'rapid7-insight-agent',
   Optional[String] $source = undef,
   Optional[String] $checksum = undef,
   Optional[Enum['md5', 'sha256', 'sha224', 'sha384', 'sha512']] $checksum_type = undef,
@@ -46,6 +57,7 @@ class ir_agent (
   Optional[String] $semantic_version = undef,
   Boolean $auditd_compatibility_mode = false,
   Boolean $manage_auditd = true,
+  Boolean $manage_audit_package = true,
   Optional[String] $https_proxy = undef,
 ) {
   unless $facts.get('os.family') == 'RedHat' and $facts.get('os.release.major') in ['6', '7', '8', '9'] {

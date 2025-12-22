@@ -3,6 +3,8 @@
 # @api private
 #
 class ir_agent::uninstall {
+  $installer = $ir_agent::installer
+  $package = $ir_agent::package
   $home = $ir_agent::home
   $agent_installer = $ir_agent::agent_installer
   $manage_auditd = $ir_agent::manage_auditd
@@ -10,15 +12,23 @@ class ir_agent::uninstall {
   $audit_start_cmd = $ir_agent::audit_start_cmd
   $audisp_plugins_dir = $ir_agent::audisp_plugins_dir
 
-  exec { 'uninstall_insight_agent':
-    command => "${agent_installer} uninstall",
-    onlyif  => "/usr/bin/test -x ${agent_installer}",
+  if $installer == 'package' {
+    package { $package:
+      ensure => absent,
+    }
+    $_uninstall_insight_agent = Package[$package]
+  } else {
+    exec { 'uninstall_insight_agent':
+      command => "${agent_installer} uninstall",
+      onlyif  => "/usr/bin/test -x ${agent_installer}",
+    }
+    $_uninstall_insight_agent = Exec['uninstall_insight_agent']
   }
 
   file { $home:
     ensure  => absent,
     force   => true,
-    require => Exec['uninstall_insight_agent'],
+    require => $_uninstall_insight_agent,
   }
 
   if $manage_auditd {
@@ -26,7 +36,7 @@ class ir_agent::uninstall {
       default:
         refreshonly => true,
         provider    => 'shell',
-        subscribe   => Exec['uninstall_insight_agent'],
+        subscribe   => $_uninstall_insight_agent,
         ;
       'restore_audit_rules':
         command => "mv ${audit_rules}.puppet-bak ${audit_rules}",

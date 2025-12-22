@@ -3,24 +3,38 @@
 # @api private
 #
 class ir_agent::audit {
+  $installer = $ir_agent::installer
+  $package = $ir_agent::package
   $home = $ir_agent::home
   $auditd_compatibility_mode = $ir_agent::auditd_compatibility_mode
   $manage_auditd = $ir_agent::manage_auditd
+  $manage_audit_package = $ir_agent::manage_audit_package
   $audit_package = $ir_agent::audit_package
   $audit_rules = $ir_agent::audit_rules
   $audispd_conf = $ir_agent::audispd_conf
   $audisp_plugins_dir = $ir_agent::audisp_plugins_dir
 
-  package { 'audit':
-    ensure => installed,
-    name   => $audit_package,
+  if $installer == 'package' {
+    $_install_insight_agent = Package[$package]
+  } else {
+    $_install_insight_agent = Exec['install_insight_agent']
+  }
+
+  if $manage_audit_package and !defined(Package[$audit_package]) {
+    package { 'audit':
+      ensure => installed,
+      name   => $audit_package,
+    }
+    $_auditd_package = Package['audit']
+  } else {
+    $_auditd_package = undef
   }
 
   if $auditd_compatibility_mode {
     exec { 'stop_insight_agent':
       command => '/sbin/service ir_agent  stop',
       unless  => "/usr/bin/test -f ${home}/ir_agent/components/insight_agent/common/audit.conf",
-      require => Exec['install_insight_agent'],
+      require => $_install_insight_agent,
     }
 
     if $manage_auditd {
@@ -31,7 +45,7 @@ class ir_agent::audit {
         owner   => 'root',
         group   => 'root',
         mode    => '0600',
-        require => Package['audit'],
+        require => $_auditd_package,
         notify  => Service['auditd'],
       }
 
@@ -42,7 +56,7 @@ class ir_agent::audit {
         owner   => 'root',
         group   => 'root',
         mode    => '0640',
-        require => Package['audit'],
+        require => $_auditd_package,
         notify  => Service['auditd'],
       }
 
@@ -51,7 +65,7 @@ class ir_agent::audit {
         path    => $audispd_conf,
         line    => 'q_depth = 8192',
         match   => '^q_depth =',
-        require => Package['audit'],
+        require => $_auditd_package,
         notify  => Service['auditd'],
       }
 
@@ -60,7 +74,7 @@ class ir_agent::audit {
         enable  => true,
         restart => '/sbin/service auditd restart',
         require => [
-          Package['audit'],
+          $_auditd_package,
           Exec['stop_insight_agent'],
         ],
         notify  => Service['ir_agent'],
@@ -73,7 +87,7 @@ class ir_agent::audit {
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      require => Exec['install_insight_agent'],
+      require => $_install_insight_agent,
       notify  => Service['ir_agent'],
     }
   } else {
@@ -81,13 +95,13 @@ class ir_agent::audit {
       ensure  => stopped,
       enable  => if $facts['service_provider'] == 'systemd' { 'mask' } else { 'false' },
       stop    => '/sbin/service auditd stop',
-      require => Package['audit'],
+      require => $_auditd_package,
       notify  => Service['ir_agent'],
     }
 
     file { "${home}/ir_agent/components/insight_agent/common/audit.conf":
       ensure  => absent,
-      require => Exec['install_insight_agent'],
+      require => $_install_insight_agent,
       notify  => Service['ir_agent'],
     }
   }

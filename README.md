@@ -5,12 +5,15 @@ Red Hat Enterprise Linux (and clones).
 
 ## Table of Contents
 
-1. [Description](#description)
-1. [Setup](#setup)
-   - [Setup requirements](#setup-requirements)
-   - [Beginning with ir_agent](#beginning-with-rapid7)
-1. [Usage](#usage)
-1. [Limitations](#limitations)
+- [ir\_agent](#ir_agent)
+  - [Table of Contents](#table-of-contents)
+  - [Description](#description)
+  - [Setup](#setup)
+    - [Setup Requirements](#setup-requirements)
+    - [Beginning with ir\_agent](#beginning-with-ir_agent)
+  - [Usage](#usage)
+  - [Limitations](#limitations)
+    - [Auditd Compatibility Mode](#auditd-compatibility-mode)
 
 ## Description
 
@@ -22,9 +25,10 @@ compatibility mode.
 
 ### Setup Requirements
 
-This module requires (but does not include) the agent installer script from
-Rapid7. You will also need an installation token from Rapid7 to download the
-required certificates during installation.
+This module requires (but does not include) the agent package (EL8+) or install
+script (EL7 and lower) from Rapid7. The package should be available from a
+configured YUM repository. You will also need an installation token from Rapid7
+to download the required certificates during installation.
 
 ### Beginning with ir_agent
 
@@ -54,12 +58,13 @@ class { '::ir_agent':
 ## Limitations
 
 If this module is used to install the Insight agent, it will install the audit
-package because it is a requirement for the Insight agent. If this module is
-later used to remove the Insight agent, it will not remove the audit package and
-it will enable and start the auditd service (if it was stopped and disabled)
-unless the manage_auditd attribute is set to false. The audit package can then
-be removed and this module will not reinstall the audit package as long as
-ensure => absent.
+package because it is a requirement for the Insight agent unless the
+manage_audit_package attribute is set to false. If this module is later used to
+remove the Insight agent, it will not remove the audit package and it will
+enable and start the auditd service (if it was stopped and disabled) unless the
+manage_auditd attribute is set to false. The audit package can then be removed
+and this module will not reinstall the audit package as long as ensure is set
+to absent.
 
 ### Auditd Compatibility Mode
 

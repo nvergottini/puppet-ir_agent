@@ -39,6 +39,8 @@ class { 'ir_agent':
 The following parameters are available in the `ir_agent` class:
 
 * [`ensure`](#-ir_agent--ensure)
+* [`installer`](#-ir_agent--installer)
+* [`package`](#-ir_agent--package)
 * [`source`](#-ir_agent--source)
 * [`checksum`](#-ir_agent--checksum)
 * [`checksum_type`](#-ir_agent--checksum_type)
@@ -46,6 +48,7 @@ The following parameters are available in the `ir_agent` class:
 * [`semantic_version`](#-ir_agent--semantic_version)
 * [`auditd_compatibility_mode`](#-ir_agent--auditd_compatibility_mode)
 * [`manage_auditd`](#-ir_agent--manage_auditd)
+* [`manage_audit_package`](#-ir_agent--manage_audit_package)
 * [`https_proxy`](#-ir_agent--https_proxy)
 
 ##### <a name="-ir_agent--ensure"></a>`ensure`
@@ -57,11 +60,27 @@ The agent is self-updating, so there is no `latest` option provided.
 
 Default value: `'present'`
 
+##### <a name="-ir_agent--installer"></a>`installer`
+
+Data type: `Enum['.sh', 'package']`
+
+Install using package (default) or .sh script (legacy).
+
+Default value: `'package'`
+
+##### <a name="-ir_agent--package"></a>`package`
+
+Data type: `String`
+
+Name of package to install.
+
+Default value: `'rapid7-insight-agent'`
+
 ##### <a name="-ir_agent--source"></a>`source`
 
 Data type: `Optional[String]`
 
-Source location for the agent installer script.
+Source location for the agent installer script (.sh installer only).
 
 Default value: `undef`
 
@@ -69,7 +88,7 @@ Default value: `undef`
 
 Data type: `Optional[String]`
 
-Checksum for the agent installer script source file.
+Checksum for the agent installer script source file (.sh installer only).
 
 Default value: `undef`
 
@@ -77,7 +96,7 @@ Default value: `undef`
 
 Data type: `Optional[Enum['md5', 'sha256', 'sha224', 'sha384', 'sha512']]`
 
-Checksum type for the source_checksum.
+Checksum type for the source_checksum (.sh installer only).
 
 Default value: `undef`
 
@@ -112,6 +131,14 @@ Data type: `Boolean`
 
 Manage the auditd configuration. This is ignored if
 auditd_compatibility_mode is false.
+
+Default value: `true`
+
+##### <a name="-ir_agent--manage_audit_package"></a>`manage_audit_package`
+
+Data type: `Boolean`
+
+Manage the installation of the audit package if true.
 
 Default value: `true`
 
