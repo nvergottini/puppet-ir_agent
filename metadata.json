@@ -1,14 +1,16 @@
 {
   "name": "nvergottini-ir_agent",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "author": "Neil Vergottini",
   "summary": "Module for installing and managing Rapid7 Insight Agent (ir_agent).",
   "license": "Apache-2.0",
   "source": "https://github.com/nvergottini/puppet-ir_agent",
+  "project_page": "https://github.com/nvergottini/puppet-ir_agent",
+  "issues_url": "https://github.com/nvergottini/puppet-ir_agent/issues",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 5.2.0 < 9.0.0"
+      "version_requirement": ">= 5.2.0 < 10.0.0"
     }
   ],
   "operatingsystem_support": [
@@ -64,10 +66,10 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 6.19.1 < 8.0.0"
+      "version_requirement": ">= 6.19.1 < 9.0.0"
     }
   ],
-  "pdk-version": "3.0.1",
-  "template-url": "pdk-default#3.0.1",
-  "template-ref": "tags/3.0.1-0-gd13288a"
+  "pdk-version": "3.5.1",
+  "template-url": "pdk-default#3.5.1",
+  "template-ref": "tags/3.5.1-0-g9d5b193"
 }

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 
 Facter.add(:ir_agent) do
@@ -16,6 +18,13 @@ Facter.add(:ir_agent) do
 
     if version.key?('SemanticVersion')
       ir_agent['semantic_version'] = version['SemanticVersion']
+    end
+
+    if File.exist?('/opt/rapid7/ir_agent/components/bootstrap/common/bootstrap.cfg')
+      bootstrap = JSON.parse(File.read('/opt/rapid7/ir_agent/components/bootstrap/common/bootstrap.cfg'))
+      if bootstrap.key?('Client-ID')
+        ir_agent['client_id'] = bootstrap['Client-ID']
+      end
     end
 
     if File.exist?('/opt/rapid7/ir_agent/components/insight_agent/common/audit.conf')
