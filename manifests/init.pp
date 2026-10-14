@@ -26,8 +26,13 @@
 #   Reinstall the agent if the current semantic version is less than this
 #   version. The agent will never be reinstalled if this is not set.
 #
+# @param idr_enabled
+#   Whether the agent is used for InsightIDR. The audit package and auditd
+#   are only relevant for InsightIDR, so if false, this module does not
+#   manage anything related to audit (e.g. for InsightVM only).
+#
 # @param auditd_compatibility_mode
-#   Run the agent in auditd compatibility mode.
+#   Run the agent in auditd compatibility mode. Requires idr_enabled.
 #
 # @param manage_auditd
 #   Manage the auditd configuration. This is ignored if
@@ -55,6 +60,7 @@ class ir_agent (
   Optional[Enum['md5', 'sha256', 'sha224', 'sha384', 'sha512']] $checksum_type = undef,
   Optional[String] $token = undef,
   Optional[String] $semantic_version = undef,
+  Boolean $idr_enabled = true,
   Boolean $auditd_compatibility_mode = false,
   Boolean $manage_auditd = true,
   Boolean $manage_audit_package = true,
@@ -62,6 +68,10 @@ class ir_agent (
 ) {
   unless $facts.get('os.family') == 'RedHat' and $facts.get('os.release.major') in ['6', '7', '8', '9'] {
     fail('unsupported operating system')
+  }
+
+  if $ensure == 'present' and $auditd_compatibility_mode and !$idr_enabled {
+    fail('auditd_compatibility_mode requires idr_enabled')
   }
 
   $home = '/opt/rapid7'
@@ -73,7 +83,9 @@ class ir_agent (
   $audisp_plugins_dir = lookup('ir_agent::audisp::plugins_dir', Stdlib::Unixpath)
 
   if $ensure == 'present' {
-    contain ir_agent::audit
+    if $idr_enabled {
+      contain ir_agent::audit
+    }
     contain ir_agent::install
   } else {
     contain ir_agent::uninstall

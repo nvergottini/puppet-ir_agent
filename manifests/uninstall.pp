@@ -7,6 +7,7 @@ class ir_agent::uninstall {
   $package = $ir_agent::package
   $home = $ir_agent::home
   $agent_installer = $ir_agent::agent_installer
+  $idr_enabled = $ir_agent::idr_enabled
   $manage_auditd = $ir_agent::manage_auditd
   $audit_rules = $ir_agent::audit_rules
   $audit_start_cmd = $ir_agent::audit_start_cmd
@@ -32,6 +33,8 @@ class ir_agent::uninstall {
   }
 
   if $manage_auditd {
+    # Restore the configuration backed up by a previous InsightIDR
+    # deployment, if any.
     exec {
       default:
         refreshonly => true,
@@ -46,9 +49,15 @@ class ir_agent::uninstall {
         command => "mv ${audisp_plugins_dir}/af_unix.conf.puppet-bak ${audisp_plugins_dir}/af_unix.conf",
         onlyif  => "test -f ${audisp_plugins_dir}/af_unix.conf.puppet-bak",
         ;
-      'start_auditd':
-        command => $audit_start_cmd,
-        ;
+    }
+
+    if $idr_enabled {
+      exec { 'start_auditd':
+        command     => $audit_start_cmd,
+        refreshonly => true,
+        provider    => 'shell',
+        subscribe   => $_uninstall_insight_agent,
+      }
     }
   }
 }

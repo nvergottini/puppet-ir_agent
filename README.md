@@ -57,14 +57,24 @@ class { '::ir_agent':
 
 ## Limitations
 
-If this module is used to install the Insight agent, it will install the audit
-package because it is a requirement for the Insight agent unless the
-manage_audit_package attribute is set to false. If this module is later used to
-remove the Insight agent, it will not remove the audit package and it will
-enable and start the auditd service (if it was stopped and disabled) unless the
-manage_auditd attribute is set to false. The audit package can then be removed
-and this module will not reinstall the audit package as long as ensure is set
-to absent.
+The audit package and the auditd service only matter for InsightIDR: unless
+auditd compatibility mode is enabled, InsightIDR requires the auditd service to
+be stopped and disabled, which this module does. If the agent is not used for
+InsightIDR (e.g. InsightVM only), set the idr_enabled attribute to false and
+this module will not manage anything related to audit, leaving it to be
+managed elsewhere if needed. Note that setting idr_enabled to false on a node
+previously managed with InsightIDR leaves auditd as it was, e.g. stopped and
+masked: it is then up to whatever manages auditd to enable it again.
+
+If this module is used to install the Insight agent for InsightIDR, it will
+install the audit package because InsightIDR requires it unless the
+manage_audit_package attribute is set to false. If this module is later used
+to remove the Insight agent, it will not remove the audit package. Unless the
+manage_auditd attribute is set to false, it will restore the audit
+configuration backed up by this module and, if idr_enabled is true, enable and
+start the auditd service (if it was stopped and disabled). The audit package
+can then be removed and this module will not reinstall the audit package as
+long as ensure is set to absent.
 
 ### Auditd Compatibility Mode
 

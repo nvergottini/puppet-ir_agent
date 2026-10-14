@@ -46,6 +46,7 @@ The following parameters are available in the `ir_agent` class:
 * [`checksum_type`](#-ir_agent--checksum_type)
 * [`token`](#-ir_agent--token)
 * [`semantic_version`](#-ir_agent--semantic_version)
+* [`idr_enabled`](#-ir_agent--idr_enabled)
 * [`auditd_compatibility_mode`](#-ir_agent--auditd_compatibility_mode)
 * [`manage_auditd`](#-ir_agent--manage_auditd)
 * [`manage_audit_package`](#-ir_agent--manage_audit_package)
@@ -117,11 +118,21 @@ version. The agent will never be reinstalled if this is not set.
 
 Default value: `undef`
 
+##### <a name="-ir_agent--idr_enabled"></a>`idr_enabled`
+
+Data type: `Boolean`
+
+Whether the agent is used for InsightIDR. The audit package and auditd
+are only relevant for InsightIDR, so if false, this module does not
+manage anything related to audit (e.g. for InsightVM only).
+
+Default value: `true`
+
 ##### <a name="-ir_agent--auditd_compatibility_mode"></a>`auditd_compatibility_mode`
 
 Data type: `Boolean`
 
-Run the agent in auditd compatibility mode.
+Run the agent in auditd compatibility mode. Requires idr_enabled.
 
 Default value: `false`
 

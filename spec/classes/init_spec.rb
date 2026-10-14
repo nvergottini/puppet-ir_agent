@@ -41,6 +41,47 @@ describe 'ir_agent' do
           is_expected.to contain_class('ir_agent::install')
         end
 
+        context 'with idr_enabled => false' do
+          let(:params) do
+            super().merge({
+                            'idr_enabled' => false
+                          })
+          end
+
+          it do
+            is_expected.not_to contain_class('ir_agent::audit')
+            is_expected.to contain_class('ir_agent::install')
+            is_expected.not_to contain_package('audit')
+            is_expected.not_to contain_service('auditd')
+            is_expected.not_to contain_file("#{home}/ir_agent/components/insight_agent/common/audit.conf")
+          end
+
+          context 'with installer => .sh' do
+            let(:params) do
+              super().merge({
+                              'installer' => '.sh'
+                            })
+            end
+
+            it do
+              is_expected.not_to contain_class('ir_agent::audit')
+              is_expected.to contain_exec('install_insight_agent')
+              is_expected.not_to contain_package('audit')
+              is_expected.not_to contain_service('auditd')
+            end
+          end
+
+          context 'with auditd_compatibility_mode => true' do
+            let(:params) do
+              super().merge({
+                              'auditd_compatibility_mode' => true
+                            })
+            end
+
+            it { is_expected.to compile.and_raise_error(%r{auditd_compatibility_mode requires idr_enabled}) }
+          end
+        end
+
         describe 'ir_agent::audit' do
           context 'with manage_audit_package => true' do
             let(:params) do
@@ -312,6 +353,46 @@ describe 'ir_agent' do
                   'command' => "#{agent_installer} uninstall",
                   'onlyif' => "/usr/bin/test -x #{agent_installer}",
                 )
+            end
+          end
+
+          context 'with idr_enabled => false' do
+            let(:params) do
+              super().merge({
+                              'idr_enabled' => false
+                            })
+            end
+
+            it do
+              is_expected.to contain_exec('restore_audit_rules')
+                .with('refreshonly' => true)
+              is_expected.to contain_exec('restore_af_unix_conf')
+                .with('refreshonly' => true)
+              is_expected.not_to contain_exec('start_auditd')
+            end
+
+            context 'with auditd_compatibility_mode => true' do
+              let(:params) do
+                super().merge({
+                                'auditd_compatibility_mode' => true
+                              })
+              end
+
+              it { is_expected.to compile.with_all_deps }
+            end
+
+            context 'with manage_auditd => false' do
+              let(:params) do
+                super().merge({
+                                'manage_auditd' => false
+                              })
+              end
+
+              it do
+                is_expected.not_to contain_exec('restore_audit_rules')
+                is_expected.not_to contain_exec('restore_af_unix_conf')
+                is_expected.not_to contain_exec('start_auditd')
+              end
             end
           end
 

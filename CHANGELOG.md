@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- Add idr_enabled parameter. If false, the audit package and auditd are not
+  managed at all, as they are only needed for InsightIDR (fixes #4).
+
 ## Release 2.0.0
 
 - Add support for installing using package instead of .sh script. Defaults to
