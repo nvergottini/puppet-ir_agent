@@ -37,18 +37,18 @@ class ir_agent::uninstall {
         refreshonly => true,
         provider    => 'shell',
         subscribe   => $_uninstall_insight_agent,
-        ;
+      ;
       'restore_audit_rules':
         command => "mv ${audit_rules}.puppet-bak ${audit_rules}",
         onlyif  => "test -f ${audit_rules}.puppet-bak",
-        ;
+      ;
       'restore_af_unix_conf':
         command => "mv ${audisp_plugins_dir}/af_unix.conf.puppet-bak ${audisp_plugins_dir}/af_unix.conf",
         onlyif  => "test -f ${audisp_plugins_dir}/af_unix.conf.puppet-bak",
-        ;
-      'start_auditd':
+      ;
+      'start_auditd': # lint:ignore:exec_idempotency refreshonly comes from the default body
         command => $audit_start_cmd,
-        ;
+      ;
     }
   }
 }

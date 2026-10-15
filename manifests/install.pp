@@ -31,7 +31,8 @@ class ir_agent::install {
         ./configure_agent.sh ${_install_args} -v --start
         |-EOF
 
-      exec { 'configure_insight_agent':
+      # Only declared while the ir_agent.client_id fact is unset.
+      exec { 'configure_insight_agent': # lint:ignore:exec_idempotency
         command  => $_configure_insight_agent,
         provider => 'shell',
         require  => Package[$package],
@@ -60,7 +61,8 @@ class ir_agent::install {
     $_current_version = $facts.get('ir_agent.semantic_version')
 
     if $semantic_version =~ String and $_current_version =~ String and versioncmp($_current_version, $semantic_version) < 0 {
-      exec { 'install_insight_agent':
+      # Only declared while the installed version is behind $semantic_version.
+      exec { 'install_insight_agent': # lint:ignore:exec_idempotency
         command => "${agent_installer} reinstall_start ${_install_args}",
         require => File['insight_agent_installer'],
         before  => File['insight_agent_proxy_config'],

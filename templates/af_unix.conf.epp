@@ -1,0 +1,21 @@
+<%- |
+  String $path,
+  String $type,
+  String $args,
+  Enum['binary', 'string'] $format,
+| -%>
+# File managed by Puppet. DO NOT EDIT.
+#
+# This file controls the configuration of the
+# af_unix socket plugin. It simply takes events
+# and writes them to a unix domain socket. This
+# plugin takes the socket permissions in octal and
+# the path for the socket as arguments (and the
+# socket output format with audit 4.0 and newer).
+
+active = yes
+direction = out
+path = <%= $path %>
+type = <%= $type %>
+args = <%= $args %>
+format = <%= $format %>

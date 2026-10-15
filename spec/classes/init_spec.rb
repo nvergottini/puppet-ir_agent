@@ -16,14 +16,32 @@ describe 'ir_agent' do
         let(:audit_rules) { '/etc/audit/audit.rules' }
         let(:audispd_conf) { '/etc/audisp/audispd.conf' }
         let(:audisp_plugins_dir) { '/etc/audisp/plugins.d' }
+        let(:audisp_plugins_package) { nil }
+        let(:af_unix_source) { "puppet:///modules/#{module_name}/af_unix.conf" }
+        let(:af_unix_conf) { nil }
       when '7'
         let(:audit_rules) { '/etc/audit/rules.d/audit.rules' }
         let(:audispd_conf) { '/etc/audisp/audispd.conf' }
         let(:audisp_plugins_dir) { '/etc/audisp/plugins.d' }
-      when '8', '9'
+        let(:audisp_plugins_package) { nil }
+        let(:af_unix_source) { "puppet:///modules/#{module_name}/af_unix.conf" }
+        let(:af_unix_conf) { nil }
+      when '8'
         let(:audit_rules) { '/etc/audit/rules.d/audit.rules' }
         let(:audispd_conf) { '/etc/audit/auditd.conf' }
         let(:audisp_plugins_dir) { '/etc/audit/plugins.d' }
+        let(:audisp_plugins_package) { 'audispd-plugins' }
+        let(:af_unix_conf) do
+          ['path = /sbin/audisp-af_unix', 'type = always', 'args = 0600 /var/run/audispd_events', 'format = string']
+        end
+      when '9', '10'
+        let(:audit_rules) { '/etc/audit/rules.d/audit.rules' }
+        let(:audispd_conf) { '/etc/audit/auditd.conf' }
+        let(:audisp_plugins_dir) { '/etc/audit/plugins.d' }
+        let(:audisp_plugins_package) { 'audispd-plugins' }
+        let(:af_unix_conf) do
+          ['path = /sbin/audisp-af_unix', 'type = always', 'args = 0600 /var/run/audispd_events string', 'format = binary']
+        end
       end
 
       context 'with ensure => present' do
@@ -91,13 +109,26 @@ describe 'ir_agent' do
                     'source' => "puppet:///modules/#{module_name}/audit.rules",
                   )
                   .that_notifies('Service[auditd]')
+                is_expected.to contain_exec('backup_af_unix_conf')
+                  .with_creates("#{audisp_plugins_dir}/af_unix.conf.puppet-bak")
+                  .that_requires('Package[audit]')
+                  .that_comes_before("File[#{audisp_plugins_dir}/af_unix.conf]")
                 is_expected.to contain_file("#{audisp_plugins_dir}/af_unix.conf")
-                  .with(
-                    'ensure' => 'file',
-                    'source' => "puppet:///modules/#{module_name}/af_unix.conf",
-                  )
+                  .with_ensure('file')
+                  .with_backup(false)
                   .that_requires('Package[audit]')
                   .that_notifies('Service[auditd]')
+                if af_unix_conf
+                  is_expected.to contain_file("#{audisp_plugins_dir}/af_unix.conf")
+                    .with_content(%r{^active = yes$})
+                  af_unix_conf.each do |line|
+                    is_expected.to contain_file("#{audisp_plugins_dir}/af_unix.conf")
+                      .with_content(%r{^#{Regexp.escape(line)}$})
+                  end
+                else
+                  is_expected.to contain_file("#{audisp_plugins_dir}/af_unix.conf")
+                    .with_source(af_unix_source)
+                end
                 is_expected.to contain_file_line('audispd.conf')
                   .with(
                     'ensure' => 'present',
@@ -115,6 +146,39 @@ describe 'ir_agent' do
                   )
                   .that_requires(['Package[audit]', 'Exec[stop_insight_agent]'])
                   .that_notifies('Service[ir_agent]')
+              end
+
+              it do
+                if audisp_plugins_package
+                  is_expected.to contain_package('audispd-plugins')
+                    .with('ensure' => 'installed', 'name' => audisp_plugins_package)
+                    .that_requires('Package[audit]')
+                  is_expected.to contain_file("#{audisp_plugins_dir}/af_unix.conf")
+                    .that_requires('Package[audispd-plugins]')
+                else
+                  is_expected.not_to contain_package('audispd-plugins')
+                end
+              end
+
+              context 'with manage_audit_package => false' do
+                let(:params) do
+                  super().merge({
+                                  'manage_audit_package' => false
+                                })
+                end
+
+                it { is_expected.not_to contain_package('audispd-plugins') }
+              end
+
+              context 'with audispd-plugins declared elsewhere' do
+                let(:pre_condition) { "package { 'audispd-plugins': ensure => installed }" }
+
+                it do
+                  if audisp_plugins_package
+                    is_expected.to contain_file("#{audisp_plugins_dir}/af_unix.conf")
+                      .that_requires('Package[audispd-plugins]')
+                  end
+                end
               end
             end
 

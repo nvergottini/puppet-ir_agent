@@ -1,0 +1,6 @@
+---
+# audit 3.1.2 passes events through unchanged and only accepts mode and path
+# as arguments, so the format here is also the socket output format. Rapid7
+# recommends string, as binary events are corrupted since audit 3.1.1.
+ir_agent::audisp::af_unix::args: '0600 /var/run/audispd_events'
+ir_agent::audisp::af_unix::format: 'string'

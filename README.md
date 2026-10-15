@@ -66,11 +66,35 @@ manage_auditd attribute is set to false. The audit package can then be removed
 and this module will not reinstall the audit package as long as ensure is set
 to absent.
 
+On EL8 and newer, the af_unix audit plugin used in auditd compatibility mode is
+shipped in the audispd-plugins package. If manage_audit_package is set to false
+while manage_auditd is true, that package must be installed by other means,
+otherwise auditd cannot start the plugin and Insight Agent receives no events.
+
 ### Auditd Compatibility Mode
 
 If the manage_auditd attribute is set to false and auditd_compatibility_mode is
 set to true, this module will not manage auditd in any way. It is important that
 auditd is properly configured to support Insight Agent in auditd compatibility
 mode.
+
+On EL8 and newer, the af_unix audit plugin is configured to send events to the
+socket in string format, as recommended by Rapid7 because of an issue
+introduced in audit 3.1.1 that corrupts events in binary format. This requires
+Insight Agent newer than 4.0.8.
+
+On EL9, the configuration targets audit 3.1.5-4 and newer (EL9.6+). Since that
+version, the af_unix plugin expects binary input from auditd (`format =
+binary`) and takes the socket output format as third argument; with `format =
+string` it silently drops every event (RHEL-248251). Older EL9 minor releases
+(9.0 to 9.5) ship a plugin that passes events through unchanged and only
+accepts the socket mode and path: with the default configuration it ignores
+the third argument and outputs binary events. For those nodes, use the same
+configuration as EL8 in Hiera:
+
+```yaml
+ir_agent::audisp::af_unix::args: '0600 /var/run/audispd_events'
+ir_agent::audisp::af_unix::format: 'string'
+```
 
 https://docs.rapid7.com/insight-agent/auditd-compatibility-mode-for-linux-assets/

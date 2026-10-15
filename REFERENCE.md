@@ -138,7 +138,9 @@ Default value: `true`
 
 Data type: `Boolean`
 
-Manage the installation of the audit package if true.
+Manage the installation of the audit package if true. On EL8 and newer,
+this also installs the audispd-plugins package, which provides the
+af_unix plugin required in auditd compatibility mode.
 
 Default value: `true`
 

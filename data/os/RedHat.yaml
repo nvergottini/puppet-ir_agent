@@ -4,3 +4,12 @@ ir_agent::audit::rules: '/etc/audit/rules.d/audit.rules'
 ir_agent::audit::start_cmd: 'systemctl unmask auditd && systemctl enable auditd && systemctl start auditd'
 ir_agent::audispd::conf: '/etc/audit/auditd.conf'
 ir_agent::audisp::plugins_dir: '/etc/audit/plugins.d'
+ir_agent::audisp::plugins_package: 'audispd-plugins'
+ir_agent::audisp::af_unix::path: '/sbin/audisp-af_unix'
+ir_agent::audisp::af_unix::type: 'always'
+# Since audit 3.1.5-4.el9 (EL9.6) and 4.0 (EL10), the af_unix plugin expects
+# binary input from auditd and drops every event otherwise (RHEL-248251). The
+# socket output format is the third plugin argument; when it is missing, the
+# plugin also ignores the mode and path.
+ir_agent::audisp::af_unix::args: '0600 /var/run/audispd_events string'
+ir_agent::audisp::af_unix::format: 'binary'

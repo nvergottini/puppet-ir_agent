@@ -34,7 +34,9 @@
 #   auditd_compatibility_mode is false.
 #
 # @param manage_audit_package
-#    Manage the installation of the audit package if true.
+#    Manage the installation of the audit package if true. On EL8 and newer,
+#    this also installs the audispd-plugins package, which provides the
+#    af_unix plugin required in auditd compatibility mode.
 #
 # @param https_proxy
 #   Proxy host and port to use for communicating with Rapid7 cloud.
@@ -60,7 +62,7 @@ class ir_agent (
   Boolean $manage_audit_package = true,
   Optional[String] $https_proxy = undef,
 ) {
-  unless $facts.get('os.family') == 'RedHat' and $facts.get('os.release.major') in ['6', '7', '8', '9'] {
+  unless $facts.get('os.family') == 'RedHat' and $facts.get('os.release.major') in ['6', '7', '8', '9', '10'] {
     fail('unsupported operating system')
   }
 
@@ -71,6 +73,11 @@ class ir_agent (
   $audit_start_cmd = lookup('ir_agent::audit::start_cmd', String)
   $audispd_conf = lookup('ir_agent::audispd::conf', Stdlib::Unixpath)
   $audisp_plugins_dir = lookup('ir_agent::audisp::plugins_dir', Stdlib::Unixpath)
+  $audisp_plugins_package = lookup('ir_agent::audisp::plugins_package', Optional[String])
+  $af_unix_path = lookup('ir_agent::audisp::af_unix::path', String)
+  $af_unix_type = lookup('ir_agent::audisp::af_unix::type', Enum['always', 'builtin'])
+  $af_unix_args = lookup('ir_agent::audisp::af_unix::args', String)
+  $af_unix_format = lookup('ir_agent::audisp::af_unix::format', Enum['binary', 'string'])
 
   if $ensure == 'present' {
     contain ir_agent::audit

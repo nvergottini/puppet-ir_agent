@@ -2,3 +2,5 @@
 ir_agent::installer: '.sh'
 ir_agent::audispd::conf: '/etc/audisp/audispd.conf'
 ir_agent::audisp::plugins_dir: '/etc/audisp/plugins.d'
+ir_agent::audisp::plugins_package: ~
+ir_agent::audisp::af_unix::type: 'builtin'
