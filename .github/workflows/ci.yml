@@ -1,0 +1,78 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUNDLE_WITHOUT: system_tests
+
+jobs:
+  static:
+    name: Static validations (Puppet 8)
+    runs-on: ubuntu-latest
+    env:
+      PUPPET_GEM_VERSION: '~> 8.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Validate (syntax, metadata, templates)
+        run: bundle exec rake validate
+
+      - name: Puppet lint
+        run: bundle exec rake lint
+
+      - name: Check (symlinks, test files, .pp files)
+        run: bundle exec rake check
+
+      - name: RuboCop
+        run: bundle exec rake rubocop
+
+  unit:
+    name: Unit tests (Puppet ${{ matrix.puppet }})
+    runs-on: ubuntu-latest
+    needs: static
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - puppet: '7'
+            ruby: '3.2'
+          - puppet: '8'
+            ruby: '3.2'
+    env:
+      PUPPET_GEM_VERSION: '~> ${{ matrix.puppet }}.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby ${{ matrix.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Show Puppet and Facter versions
+        run: bundle exec gem list --exact puppet facter
+
+      - name: Run unit tests
+        run: bundle exec rake parallel_spec
