@@ -266,6 +266,54 @@ describe 'ir_agent' do
             end
           end
 
+          context 'with a Sensitive token' do
+            let(:token) { 'us:01234567-89ab-cdef-0123-4567890abcde' }
+            let(:params) do
+              super().merge({
+                              'token' => sensitive(token),
+                            })
+            end
+
+            context 'with installer => package' do
+              let(:params) do
+                super().merge({
+                                'installer' => 'package',
+                              })
+              end
+
+              it do
+                is_expected.to contain_exec('configure_insight_agent')
+                  .with_command(sensitive(%r{./configure_agent.sh --token #{token} -v --start}))
+              end
+            end
+
+            context 'with installer => .sh' do
+              let(:params) do
+                super().merge({
+                                'installer' => '.sh',
+                              })
+              end
+
+              it do
+                is_expected.to contain_exec('install_insight_agent')
+                  .with_command(sensitive("#{agent_installer} install_start --token #{token}"))
+              end
+
+              context 'reinstall' do
+                let(:facts) do
+                  super().merge({
+                                  'ir_agent' => { 'semantic_version' => '1.1.2.6' },
+                                })
+                end
+
+                it do
+                  is_expected.to contain_exec('install_insight_agent')
+                    .with_command(sensitive("#{agent_installer} reinstall_start --token #{token}"))
+                end
+              end
+            end
+          end
+
           it do
             is_expected.to contain_service('ir_agent')
               .with(

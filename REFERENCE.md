@@ -102,9 +102,11 @@ Default value: `undef`
 
 ##### <a name="-ir_agent--token"></a>`token`
 
-Data type: `Optional[String]`
+Data type: `Optional[Variant[String, Sensitive[String]]]`
 
 Token needed to download the certificates needed to enable the agent.
+Can be passed as `Sensitive` to redact it (and the commands using it)
+from logs and reports.
 
 Default value: `undef`
 

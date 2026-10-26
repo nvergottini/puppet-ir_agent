@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- Allow the token to be passed as `Sensitive`. The commands using it are then
+  redacted from logs and reports.
+
 ## Release 2.0.0
 
 - Add support for installing using package instead of .sh script. Defaults to

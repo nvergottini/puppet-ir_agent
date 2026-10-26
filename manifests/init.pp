@@ -21,6 +21,8 @@
 #
 # @param token
 #   Token needed to download the certificates needed to enable the agent.
+#   Can be passed as `Sensitive` to redact it (and the commands using it)
+#   from logs and reports.
 #
 # @param semantic_version
 #   Reinstall the agent if the current semantic version is less than this
@@ -53,7 +55,7 @@ class ir_agent (
   Optional[String] $source = undef,
   Optional[String] $checksum = undef,
   Optional[Enum['md5', 'sha256', 'sha224', 'sha384', 'sha512']] $checksum_type = undef,
-  Optional[String] $token = undef,
+  Optional[Variant[String, Sensitive[String]]] $token = undef,
   Optional[String] $semantic_version = undef,
   Boolean $auditd_compatibility_mode = false,
   Boolean $manage_auditd = true,

@@ -15,9 +15,14 @@ class ir_agent::install {
   $https_proxy = $ir_agent::https_proxy
   $agent_installer = $ir_agent::agent_installer
 
+  $_token = $token ? {
+    Sensitive => $token.unwrap,
+    default   => $token,
+  }
+
   $_install_args = $https_proxy ? {
-    String  => "--token ${token} --https-proxy ${https_proxy}",
-    default => "--token ${token}",
+    String  => "--token ${_token} --https-proxy ${https_proxy}",
+    default => "--token ${_token}",
   }
 
   if $installer == 'package' {
@@ -31,8 +36,13 @@ class ir_agent::install {
         ./configure_agent.sh ${_install_args} -v --start
         |-EOF
 
+      $_configure_command = $token ? {
+        Sensitive => Sensitive($_configure_insight_agent),
+        default   => $_configure_insight_agent,
+      }
+
       exec { 'configure_insight_agent':
-        command  => $_configure_insight_agent,
+        command  => $_configure_command,
         provider => 'shell',
         require  => Package[$package],
         before   => File['insight_agent_proxy_config'],
@@ -60,14 +70,24 @@ class ir_agent::install {
     $_current_version = $facts.get('ir_agent.semantic_version')
 
     if $semantic_version =~ String and $_current_version =~ String and versioncmp($_current_version, $semantic_version) < 0 {
+      $_install_command = $token ? {
+        Sensitive => Sensitive("${agent_installer} reinstall_start ${_install_args}"),
+        default   => "${agent_installer} reinstall_start ${_install_args}",
+      }
+
       exec { 'install_insight_agent':
-        command => "${agent_installer} reinstall_start ${_install_args}",
+        command => $_install_command,
         require => File['insight_agent_installer'],
         before  => File['insight_agent_proxy_config'],
       }
     } else {
+      $_install_command = $token ? {
+        Sensitive => Sensitive("${agent_installer} install_start ${_install_args}"),
+        default   => "${agent_installer} install_start ${_install_args}",
+      }
+
       exec { 'install_insight_agent':
-        command => "${agent_installer} install_start ${_install_args}",
+        command => $_install_command,
         creates => "${home}/ir_agent/ir_agent",
         require => File['insight_agent_installer'],
         before  => File['insight_agent_proxy_config'],
